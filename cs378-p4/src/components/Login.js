@@ -22,7 +22,8 @@ const Login = () => {
      */
     signInWithEmailAndPassword(auth, email, password)
       .then(() => {
-        // navigate("/");
+        console.log('successfully signed in!!')
+        navigate("/");
       })
       .catch((error) => {
         alert(error.message);
@@ -30,7 +31,7 @@ const Login = () => {
   };
 
   return (
-    <div>
+    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
       <h1> Weather App Login</h1>
       <form>
         <div>
@@ -58,7 +59,7 @@ const Login = () => {
         </div>
       </form>
 
-      <NavLink to="/register">Sign up</NavLink>
+      <NavLink to="/signup">Sign up</NavLink>
     </div>
   );
 };

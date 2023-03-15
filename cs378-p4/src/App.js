@@ -12,8 +12,8 @@ function App() {
         <section>
           <Routes>
             {" "}
-            
-            <Route path="/" element={<Signup />} />
+            // <Route path="/" element={<Dashboard />} />
+            <Route path="/" element={<Login />} />
           </Routes>
         </section>
       </div>
@@ -25,5 +25,6 @@ export default App;
 
 /**
  * <Route path="/" element={<Dashboard />} />
+ * <Route path="/signup" element={<Signup />} />
  * <Route path="/login" element={<Login />} />
  */

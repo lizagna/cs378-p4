@@ -3,41 +3,104 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { getAuth, onAuthStateChanged, signOut } from "firebase/auth";
 import { auth } from "../firebase";
+import { getDatabase, ref, child, get, set } from "firebase/database";
+
 
 function Dashboard() {
   const navigate = useNavigate();
-  const [userId, setuserID] = useState("");
-  const [email, setemail] = useState("");
-
-  const [location, setLocation] = useState({
-    "Austin": {"latitude":30.26715, "longitude":-97.74306},
-    "Dallas": {"latitude":32.78306, "longitude":-96.80667},
-    "Houston": {"latitude":29.76328, "longitude":-95.36327}
-  });
+  const [locations, setLocations] = useState({});
   const [searchText, setSearchText] = useState("");
-  const [city, setCity] = useState("Houston");
+  const [city, setCity] = useState("");
   const [times, setTimes] = useState([]);
   const [temperatures, setTemperatures] = useState([]);
+  const [userId, setUserID] = useState("");
+  const [email, setEmail] = useState("");
 
   useEffect(() => {
-    fetchWeather('Houston')
+    // fetchWeather('Houston')
+    /**
+     * Listens for changes in the user authentication state
+     */
+    onAuthStateChanged(auth, (user) => {
+        if (user) {
+            const uid = user.uid;
+            setUserID(uid);
+            // console.log("uid", uid);
+
+            /**
+             * When the user logs in, the function retrieves the data from the "users" node in 
+             * the database for the currently authenticated user.
+             */
+            const dbRef = ref(getDatabase());
+            get(child(dbRef, "users/" + uid))
+                /**
+                 * Successfully retrieves user data from database
+                 */
+                .then((snapshot) => {
+                    if (snapshot.exists()) {
+                        let snapshotData = {};
+                        /**
+                         * Iterate over each child node and check if the key of the child node is equal
+                         * to 'email.' If not, then adds the key-value pair to snapshotData. If equal,
+                         * set email using setEmail().
+                         */
+                        snapshot.forEach((node) => {
+                            if (node.key != "email") {
+                                snapshotData[node.key] = node.val();
+                            } else {
+                                setEmail(node.val());
+                            }
+                        });
+
+                        setLocations(snapshotData);
+                        
+                    } else {
+                        console.log("No data available");
+                    }
+                })
+                .catch((error) => {
+                    console.error(error);
+                });
+
+        } else {
+            console.log("user logged out");
+            navigate("/login");
+        }
+    });
   },[]);
+
+
 
   const addLocation = () => {
     fetch(`https://geocoding-api.open-meteo.com/v1/search?name=${searchText}`)
-      .then((res) => res.json())
+      .then((res) => res.json()) // Parses the response as JSON and returns a Promise that resolves with the result
       .then(
         (json) => {
           if (json.results) {
             const match = json.results[0];
-            setLocation({
-              ...location, // retains original state using spread operator
+            const db = getDatabase();
+
+            /**
+             * Set the values in the Realtime Database of this user
+             */
+            set(ref(db, "users/" + userId + "/" + match.name), {
+                latitude: match.latitude,
+                longitude: match.longitude,
+            });
+
+            /**
+             * Update the state of the locations
+             */
+            setLocations({
+              ...locations, // retains original state using spread operator
               [match.name]: {
                 latitude: match.latitude,
                 longitude: match.longitude,
               },
             });
             setSearchText(""); // clears the search bar
+            fetchWeather(match.name);
+
           } else {
             alert(`Could not find weather for ${searchText}`);
           }
@@ -46,9 +109,13 @@ function Dashboard() {
       );
   };
 
+  /**
+   * Grabs the weather of city from API call
+   * @param {*} city [String] The city whose weather we want to see
+   */
   const fetchWeather = (city) => {
     fetch(
-      `https://api.open-meteo.com/v1/forecast?latitude=${location[city].latitude}&longitude=${location[city].longitude}&current_weather=true&hourly=temperature_2m&temperature_unit=fahrenheit`
+      `https://api.open-meteo.com/v1/forecast?latitude=${locations[city].latitude}&longitude=${locations[city].longitude}&current_weather=true&hourly=temperature_2m&temperature_unit=fahrenheit`
     )
       .then((res) => res.json())
       .then(
@@ -56,15 +123,15 @@ function Dashboard() {
           if (json.hourly) {
             setTemperatures(json.hourly.temperature_2m);
             setTimes(json.hourly.time);
+            setCity(city);
           }
-          setCity(city);
         },
         (error) => {}
       );
   };
 
   let buttons = [];
-  for (let loc in location) {
+  for (let loc in locations) {
     buttons.push(
       <button
         style={{

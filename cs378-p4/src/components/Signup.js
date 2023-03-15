@@ -38,7 +38,7 @@ const Signup = () => {
             /**
              * If the database write is successful, the function navigates the user to the dashboard
              */
-            // console.log('successfully created new user!!')
+            console.log('successfully created new user!!')
             navigate("/");
           }
         );
