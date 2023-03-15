@@ -25,8 +25,6 @@ function Dashboard() {
         if (user) {
             const uid = user.uid;
             setUserID(uid);
-            // console.log("uid", uid);
-
             /**
              * When the user logs in, the function retrieves the data from the "users" node in 
              * the database for the currently authenticated user.
@@ -55,7 +53,7 @@ function Dashboard() {
                         setLocations(snapshotData);
                         
                     } else {
-                        console.log("No data available");
+                        alert(`Could not find weather for ${searchText}`);
                     }
                 })
                 .catch((error) => {
@@ -63,7 +61,6 @@ function Dashboard() {
                 });
 
         } else {
-            console.log("user logged out");
             navigate("/login");
         }
     });
@@ -73,7 +70,10 @@ function Dashboard() {
 
   const addLocation = () => {
     fetch(`https://geocoding-api.open-meteo.com/v1/search?name=${searchText}`)
-      .then((res) => res.json()) // Parses the response as JSON and returns a Promise that resolves with the result
+    /**
+     * Parses the response as JSON and returns a Promise that resolves with the result
+     */
+      .then((res) => res.json()) 
       .then(
         (json) => {
           if (json.results) {
@@ -99,7 +99,8 @@ function Dashboard() {
               },
             });
             setSearchText(""); // clears the search bar
-            fetchWeather(match.name);
+            
+            // fetchWeather(match.name);
 
           } else {
             alert(`Could not find weather for ${searchText}`);
@@ -111,7 +112,7 @@ function Dashboard() {
 
   /**
    * Grabs the weather of city from API call
-   * @param {*} city [String] The city whose weather we want to see
+   * @param {*} city The city whose weather we want to see
    */
   const fetchWeather = (city) => {
     fetch(
@@ -128,6 +129,19 @@ function Dashboard() {
         },
         (error) => {}
       );
+  };
+
+  /**
+   * Signs this current user out
+   * Code from firebase documentation
+   */
+  const logout = () => {
+    const auth = getAuth();
+    signOut(auth).then(() => {
+        // Sign-out successful.
+      }).catch((error) => {
+        // An error happened.
+      });
   };
 
   let buttons = [];
@@ -233,8 +247,6 @@ function Dashboard() {
     }
   }
 
-
-
   return (
     <div 
       style={{ 
@@ -285,6 +297,20 @@ function Dashboard() {
       >
           {tbRows}
       </table>
+
+      <button
+        style={{
+            marginRight: "10px",
+            fontSize: "18px",
+            width: "100px",
+            height: "30px",
+            borderRadius: "5px",
+            fontWeight: "bold"
+        }}
+        onClick={logout}
+    >
+        Sign Out
+      </button>
     </div>
   );
 }

@@ -22,7 +22,6 @@ const Login = () => {
      */
     signInWithEmailAndPassword(auth, email, password)
       .then(() => {
-        console.log('successfully signed in!!')
         navigate("/");
       })
       .catch((error) => {

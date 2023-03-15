@@ -29,7 +29,6 @@ const Signup = () => {
       .then((userCredential) => {
         // Signed in
         const db = getDatabase();
-        // console.log(userCredential.user);
         /**
          * Save the user's email to the database at a location based on the user's unique ID
          */
@@ -38,7 +37,6 @@ const Signup = () => {
             /**
              * If the database write is successful, the function navigates the user to the dashboard
              */
-            console.log('successfully created new user!!')
             navigate("/");
           }
         );
