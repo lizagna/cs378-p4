@@ -1,6 +1,7 @@
-import logo from './logo.svg';
 import './App.css';
 import Dashboard from "./components/Dashboard";
+import Login from "./components/Login";
+import Signup from "./components/Signup";
 import { HashRouter as Router } from "react-router-dom";
 import { Routes, Route } from "react-router-dom";
 
@@ -11,7 +12,8 @@ function App() {
         <section>
           <Routes>
             {" "}
-            <Route path="/" element={<Dashboard />} />
+            
+            <Route path="/" element={<Signup />} />
           </Routes>
         </section>
       </div>
@@ -20,3 +22,8 @@ function App() {
 }
 
 export default App;
+
+/**
+ * <Route path="/" element={<Dashboard />} />
+ * <Route path="/login" element={<Login />} />
+ */

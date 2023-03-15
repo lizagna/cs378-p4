@@ -1,7 +1,14 @@
 
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { getAuth, onAuthStateChanged, signOut } from "firebase/auth";
+import { auth } from "../firebase";
 
 function Dashboard() {
+  const navigate = useNavigate();
+  const [userId, setuserID] = useState("");
+  const [email, setemail] = useState("");
+
   const [location, setLocation] = useState({
     "Austin": {"latitude":30.26715, "longitude":-97.74306},
     "Dallas": {"latitude":32.78306, "longitude":-96.80667},
