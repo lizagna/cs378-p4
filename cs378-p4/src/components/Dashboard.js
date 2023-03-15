@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { getAuth, onAuthStateChanged, signOut } from "firebase/auth";
@@ -8,16 +7,36 @@ import { getDatabase, ref, child, get, set } from "firebase/database";
 
 function Dashboard() {
   const navigate = useNavigate();
-  const [locations, setLocations] = useState({});
+
+  const [locations, setLocations] = useState({}); // list of cities stored in the db for each user
   const [searchText, setSearchText] = useState("");
-  const [city, setCity] = useState("");
+  const [city, setCity] = useState(""); // set to a default location
   const [times, setTimes] = useState([]);
   const [temperatures, setTemperatures] = useState([]);
+  
   const [userId, setUserID] = useState("");
   const [email, setEmail] = useState("");
 
+  function getCurrentLocation(snapshotData) {
+    if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition((position) => {
+            // console.log("position coordinates", position.coords);
+          const { latitude, longitude } = position.coords;
+          const currentCity = "Current Location";
+          const defaultCoordinates = {"latitude":latitude, "longitude":longitude};
+          
+          setLocations({...snapshotData, [currentCity]: defaultCoordinates});
+        //   setCity(currentCity);
+        //   fetchWeather(currentCity);
+          fetchWeather(currentCity, defaultCoordinates);
+            
+        });
+      } else {
+        console.log("Geolocation is not supported by this browser.");
+      }
+  }
+
   useEffect(() => {
-    // fetchWeather('Houston')
     /**
      * Listens for changes in the user authentication state
      */
@@ -25,11 +44,13 @@ function Dashboard() {
         if (user) {
             const uid = user.uid;
             setUserID(uid);
+            
             /**
              * When the user logs in, the function retrieves the data from the "users" node in 
              * the database for the currently authenticated user.
              */
-            const dbRef = ref(getDatabase());
+            const db = getDatabase();
+            const dbRef = ref(db);
             get(child(dbRef, "users/" + uid))
                 /**
                  * Successfully retrieves user data from database
@@ -49,11 +70,15 @@ function Dashboard() {
                                 setEmail(node.val());
                             }
                         });
-
-                        setLocations(snapshotData);
-                        
+                        console.log("*** snapshotdata in useEffect", snapshotData);
+                        if (snapshotData && snapshotData !== "") {
+                            
+                            
+                            getCurrentLocation(snapshotData);
+                            // setLocations({...locations, ...snapshotData});
+                        } 
                     } else {
-                        alert(`Could not find weather for ${searchText}`);
+                        console.log("no weather");
                     }
                 })
                 .catch((error) => {
@@ -103,7 +128,10 @@ function Dashboard() {
             // fetchWeather(match.name);
 
           } else {
-            alert(`Could not find weather for ${searchText}`);
+            console.log(searchText);
+            if (searchText && searchText !== "") {
+                alert(`Could not find weather for ${searchText}`);
+            }
           }
         },
         (error) => {}
@@ -114,9 +142,13 @@ function Dashboard() {
    * Grabs the weather of city from API call
    * @param {*} city The city whose weather we want to see
    */
-  const fetchWeather = (city) => {
+  const fetchWeather = (city, currentCoordinates) => {
+    if (!currentCoordinates) {
+        currentCoordinates = locations[city];
+    }
+    const queryString = `latitude=${currentCoordinates.latitude}&longitude=${currentCoordinates.longitude}&current_weather=true&hourly=temperature_2m&temperature_unit=fahrenheit`;
     fetch(
-      `https://api.open-meteo.com/v1/forecast?latitude=${locations[city].latitude}&longitude=${locations[city].longitude}&current_weather=true&hourly=temperature_2m&temperature_unit=fahrenheit`
+      `https://api.open-meteo.com/v1/forecast?${queryString}`
     )
       .then((res) => res.json())
       .then(
