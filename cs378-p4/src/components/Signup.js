@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { NavLink, useNavigate } from "react-router-dom";
 import { createUserWithEmailAndPassword } from "firebase/auth";
-import { auth } from "../firebase";
+import { auth, db } from "../firebase";
 import { getDatabase, ref, set } from "firebase/database";
 
 const Signup = () => {
@@ -28,7 +28,6 @@ const Signup = () => {
     await createUserWithEmailAndPassword(auth, email, password)
       .then((userCredential) => {
         // Signed in
-        const db = getDatabase();
         /**
          * Save the user's email to the database at a location based on the user's unique ID
          */
@@ -47,76 +46,52 @@ const Signup = () => {
   };
 
   return (
-    <div>
+    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
       <h1> Create an Account</h1>
       <form>
-        <div>
-          Email address
-          <input
-            type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            required
-            placeholder="Email address"
-          />
-        </div>
+        <table>
+          <tr>
+            <td>Email</td>
+          </tr>
+          <tr>
+            <td>
+              <input
+                type="email"
+                required
+                placeholder="Email address"
+                onChange={(e) => setEmail(e.target.value)}
+              />
+            </td>
+          </tr>
 
-        <div>
-          Password
-          <input
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-            placeholder="Password"
-          />
-        </div>
+          <tr>
+            <td>Password</td>
+          </tr>
+          <tr>
+            <td>
+              <input
+                type="password"
+                required
+                placeholder="Password"
+                onChange={(e) => setPassword(e.target.value)}
+              />
+            </td>
+          </tr>
 
-        <button type="submit" onClick={onCreateAccount}>
-          Sign up
-        </button>
+          <tr>
+            <td style={{textAlign: "center", paddingTop: "10px"}}>
+              <button type="submit" onClick={onCreateAccount} style={{width: "150px"}}>
+                Sign up
+              </button>
+            </td>
+          </tr>
+        </table>
       </form>
 
-      <NavLink to="/login">Sign in</NavLink>
+      <div style={{paddingTop: "10px", fontSize: "10px"}}>
+        Already have an account? <NavLink to="/login">Sign in</NavLink>
+      </div>
     </div>
-
-    // <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-    //     <h1>Create an Account</h1>
-    //     <form style={{ width: '100%', maxWidth: '400px' }}>
-    //         <div style={{ width: '100%' }}>
-    //         <label>Email address</label>
-    //         <input
-    //             type="email"
-    //             value={email}
-    //             onChange={(e) => setEmail(e.target.value)}
-    //             required
-    //             placeholder="Email address"
-    //             style={{ width: '60%', marginBottom: '10px' }}
-    //         />
-    //         </div>
-
-    //         <div style={{ width: '100%' }}>
-    //         <label>Password</label>
-    //         <input
-    //             type="password"
-    //             value={password}
-    //             onChange={(e) => setPassword(e.target.value)}
-    //             required
-    //             placeholder="Password"
-    //             style={{ width: '60%', marginBottom: '10px' }}
-    //         />
-    //         </div>
-
-    //         <button type="submit" onClick={onCreateAccount}>
-    //         Sign up
-    //         </button>
-    //     </form>
-
-    //     <NavLink to="/login" style={{ marginTop: '10px' }}>
-    //         Sign in
-    //     </NavLink>
-    // </div>
-
   );
 };
 

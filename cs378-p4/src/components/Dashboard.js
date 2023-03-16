@@ -1,11 +1,11 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { getAuth, onAuthStateChanged, signOut } from "firebase/auth";
-import { auth } from "../firebase";
+import { auth, db } from "../firebase";
 import { getDatabase, ref, child, get, set } from "firebase/database";
 
 
-function Dashboard() {
+const Dashboard = () => {
   const navigate = useNavigate();
 
   const [locations, setLocations] = useState({}); // list of cities stored in the db for each user
@@ -17,7 +17,7 @@ function Dashboard() {
   const [userId, setUserID] = useState("");
   const [email, setEmail] = useState("");
 
-  function getCurrentLocation(snapshotData) {
+  const getCurrentLocation = (snapshotData) => {
     if (navigator.geolocation) {
         navigator.geolocation.getCurrentPosition((position) => {
           const { latitude, longitude } = position.coords;
@@ -31,7 +31,7 @@ function Dashboard() {
       } else {
         console.log("Geolocation is not supported by this browser.");
       }
-  }
+  };
 
   useEffect(() => {
     /**
@@ -41,12 +41,10 @@ function Dashboard() {
         if (user) {
             const uid = user.uid;
             setUserID(uid);
-            
             /**
              * When the user logs in, the function retrieves the data from the "users" node in 
              * the database for the currently authenticated user.
              */
-            const db = getDatabase();
             const dbRef = ref(db);
             get(child(dbRef, "users/" + uid))
                 /**
@@ -78,7 +76,6 @@ function Dashboard() {
                 .catch((error) => {
                     console.error(error);
                 });
-
         } else {
             navigate("/login");
         }
@@ -97,8 +94,6 @@ function Dashboard() {
         (json) => {
           if (json.results) {
             const match = json.results[0];
-            const db = getDatabase();
-
             /**
              * Set the values in the Realtime Database of this user
              */
@@ -106,7 +101,6 @@ function Dashboard() {
                 latitude: match.latitude,
                 longitude: match.longitude,
             });
-
             /**
              * Update the state of the locations
              */
@@ -118,9 +112,6 @@ function Dashboard() {
               },
             });
             setSearchText(""); // clears the search bar
-            
-            // fetchWeather(match.name);
-
           } else {
             console.log(searchText);
             if (searchText && searchText !== "") {
@@ -226,7 +217,7 @@ function Dashboard() {
   /**
    * Converts the time into 12-hour time
    */
-  function convertTime(dt) {
+  const convertTime = (dt) => {
     const options = {
       hour: 'numeric',
       minute: 'numeric',
@@ -234,7 +225,7 @@ function Dashboard() {
     };
     const timeString = dt.toLocaleString('en-US', options);
     return timeString;
-  }
+  };
 
   /**
    * Populates the table with the time and its corresponding temperature
@@ -339,6 +330,6 @@ function Dashboard() {
       </button>
     </div>
   );
-}
+};
 
 export default Dashboard;

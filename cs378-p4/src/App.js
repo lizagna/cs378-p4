@@ -23,9 +23,3 @@ function App() {
 }
 
 export default App;
-
-/**
- * <Route path="/" element={<Dashboard />} />
- * <Route path="/login" element={<Login />} />
- * <Route path="/signup" element={<Signup />} />
- */

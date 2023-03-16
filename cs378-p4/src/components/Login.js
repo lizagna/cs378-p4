@@ -31,34 +31,50 @@ const Login = () => {
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-      <h1> Weather App Login</h1>
+      <h1>Welcome Back!</h1>
       <form>
-        <div>
-          Email address
-          <input
-            type="email"
-            required
-            placeholder="Email address"
-            onChange={(e) => setEmail(e.target.value)}
-          />
-        </div>
+        <table>
+          <tr>
+            <td>Email</td>
+          </tr>
+          <tr>
+            <td>
+              <input
+                type="email"
+                required
+                placeholder="Email address"
+                onChange={(e) => setEmail(e.target.value)}
+              />
+            </td>
+          </tr>
 
-        <div>
-          Password
-          <input
-            type="password"
-            required
-            placeholder="Password"
-            onChange={(e) => setPassword(e.target.value)}
-          />
-        </div>
+          <tr>
+            <td>Password</td>
+          </tr>
+          <tr>
+            <td>
+              <input
+                type="password"
+                required
+                placeholder="Password"
+                onChange={(e) => setPassword(e.target.value)}
+              />
+            </td>
+          </tr>
 
-        <div>
-          <button onClick={onLogin}>Login</button>
-        </div>
+          <tr>
+            <td style={{textAlign: "center", paddingTop: "10px"}}>
+              <button onClick={onLogin} style={{width: "150px"}}>
+                Login
+              </button>
+            </td>
+          </tr>
+        </table>
       </form>
 
-      <NavLink to="/signup">Sign up</NavLink>
+      <div style={{paddingTop: "10px", fontSize: "10px"}}>
+        Don't have an account? <NavLink to="/signup">Sign up</NavLink>
+      </div>
     </div>
   );
 };
