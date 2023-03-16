@@ -20,14 +20,11 @@ function Dashboard() {
   function getCurrentLocation(snapshotData) {
     if (navigator.geolocation) {
         navigator.geolocation.getCurrentPosition((position) => {
-            // console.log("position coordinates", position.coords);
           const { latitude, longitude } = position.coords;
           const currentCity = "Current Location";
           const defaultCoordinates = {"latitude":latitude, "longitude":longitude};
           
           setLocations({...snapshotData, [currentCity]: defaultCoordinates});
-        //   setCity(currentCity);
-        //   fetchWeather(currentCity);
           fetchWeather(currentCity, defaultCoordinates);
             
         });
@@ -64,7 +61,7 @@ function Dashboard() {
                          * set email using setEmail().
                          */
                         snapshot.forEach((node) => {
-                            if (node.key != "email") {
+                            if (node.key !== "email") {
                                 snapshotData[node.key] = node.val();
                             } else {
                                 setEmail(node.val());
@@ -72,10 +69,7 @@ function Dashboard() {
                         });
                         console.log("*** snapshotdata in useEffect", snapshotData);
                         if (snapshotData && snapshotData !== "") {
-                            
-                            
                             getCurrentLocation(snapshotData);
-                            // setLocations({...locations, ...snapshotData});
                         } 
                     } else {
                         console.log("no weather");
